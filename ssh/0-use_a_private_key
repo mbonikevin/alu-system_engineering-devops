@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# connecting to a remote serveer
+
+ssh -i ~/.ssh/school ubuntu@8.8.8.8
+
