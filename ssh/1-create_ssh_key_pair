@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # ssh key pair with parameters
 ssh-keygen -t rsa -b 4096 -f /root/.ssh/school -N "betty"
