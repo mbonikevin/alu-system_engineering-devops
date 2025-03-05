@@ -1,15 +1,8 @@
 #!/usr/bin/env bash
-# Update package index and install nginx
-apt-get update
+# installing nginx
+
+apt-get update -y
 apt-get install -y nginx
-
-# Modify the default nginx HTML page to contain "Holberton School for the win!"
+chown -R www-data:www-data /var/www/html
 echo "Holberton School for the win!" > /var/www/html/index.html
-
-# Ensure nginx is listening on port 80
-# Restart Nginx using service (since systemctl is not allowed)
 service nginx restart
-
-# Allow port 80 traffic through firewall if ufw is active
-ufw allow 'Nginx HTTP'
-
