@@ -1,25 +1,9 @@
 #!/usr/bin/env bash
 # Configuring Nginx for 301 redirect
 
-apt-get -y update
-apt-get install -y nginx
+redirection_str="server_name _;\\
+	rewrite ^/redirect_me https://github.com/El-gibbor permanent;"
 
-# Update the Nginx configuration file
-cat <<EOL > /etc/nginx/sites-available/default
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    root /var/www/html;
-    index index.html index.htm index.nginx-debian.html;
-    server_name _;
-    
-    location /redirect_me {
-        return 301 https://www.youtube.com/watch?v=-VGIt10m9VQ;
-    }
-}
-EOL
-
-# Restart and reload Nginx
-systemctl restart nginx
-systemctl reload nginx
+# Insert redirection in nginx config file
+sudo sed -i "s|server_name _;|$redirection_str|" /etc/nginx/sites-available/default
 
