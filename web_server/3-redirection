@@ -3,9 +3,8 @@
 
 apt-get -y update
 apt-get install -y nginx
-chown -R "$USER":"$USER" /var/www/html
 
-# Define Nginx configuration
+# Update the Nginx configuration file
 cat <<EOL > /etc/nginx/sites-available/default
 server {
     listen 80 default_server;
@@ -20,6 +19,7 @@ server {
 }
 EOL
 
-chown -R root:root /var/www/html
-service nginx restart
+# Restart and reload Nginx
+systemctl restart nginx
+systemctl reload nginx
 
