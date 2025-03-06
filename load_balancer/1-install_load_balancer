@@ -11,8 +11,8 @@ sudo apt install -y haproxy
 # Ensure that HAProxy starts on boot
 sudo systemctl enable haproxy
 
-# Set the right hostnames for web-01 and web-02 (Make sure they are properly set)
-sudo hostnamectl set-hostname 6380-web-01  # Replace with actual hostname if needed
+# Set the correct hostname for this machine (ensure correct hostname based on the machine)
+hostnamectl set-hostname 6380-lb-01  # Replace with the actual hostname for lb-01
 
 # Backup original HAProxy configuration
 sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
