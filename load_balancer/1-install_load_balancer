@@ -1,54 +1,60 @@
 #!/usr/bin/env bash
-# This script installs and configures HAProxy to load balance traffic between web-01 and web-02 using round-robin
+# This script installs and configures HAProxy to load balance
 
-# Exit on any error
-set -e
+function install() {
+command -v "$1" &> /dev/null
 
-# Update and install HAProxy
-sudo apt update -y
-sudo apt install -y haproxy
+#shellcheck disable=SC2181
+if [ $? -ne 0 ]; then
+echo -e "Installing: $1\n"
+sudo apt-get update -y -qq && \
+sudo apt-get install -y "$1" -qq
+echo -e "\n"
+else
+echo -e "${1} is already installed.\n"
+fi
+}
 
-# Ensure that HAProxy starts on boot
-sudo systemctl enable haproxy
+install haproxy #install haproxy
 
-# Set the correct hostname for this machine (ensure correct hostname based on the machine)
-hostnamectl set-hostname 6380-lb-01  # Replace with the actual hostname for lb-01
+echo -e "\nSetting up some minor stuff.\n"
 
-# Backup original HAProxy configuration
-sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
+# backup default server config file
+sudo cp /etc/haproxy/haproxy.cfg haproxy_default.backup
 
-# Configure HAProxy for round-robin load balancing
-echo "global
-    log /dev/log local0
-    log /dev/log local1 notice
-    chroot /var/lib/haproxy
-    user haproxy
-    group haproxy
-    daemon
-
+server_config=\
+"
 defaults
-    log     global
-    option  httplog
-    option  dontlognull
-    timeout connect 5000ms
-    timeout client  50000ms
-    timeout server  50000ms
+  mode http
+  timeout client 15s
+  timeout connect 10s
+  timeout server 15s
+  timeout http-request 10s
 
-frontend http_front
+frontend clickviral-tech-frontend
     bind *:80
-    default_backend http_back
+    default_backend clickviral-tech-backend
 
-backend http_back
+backend clickviral-tech-backend
     balance roundrobin
-    server web-01 18.207.204.181:80 check
-    server web-02 18.233.154.199:80 check" | sudo tee /etc/haproxy/haproxy.cfg
+    server 6269-web-01 34.228.159.176:80 check
+    server 6269-web-02 18.234.150.129:80 check
+"
 
-# Test HAProxy configuration
-sudo haproxy -c -f /etc/haproxy/haproxy.cfg
+# shellcheck disable=SC2154
+echo "$server_config" | sudo dd status=none of=/etc/haproxy/haproxy.cfg
 
-# Restart HAProxy to apply changes
-sudo systemctl restart haproxy
+# enable haproxy to be started by init script
+echo "ENABLED=1" | sudo dd status=none of=/etc/default/haproxy
 
-# Ensure HAProxy is running and enabled at startup
-sudo systemctl status haproxy
+echo "configured - Roundrobin On web-01 & web-02"
 
+if [ "$(pgrep -c haproxy)" -le 0 ]; then
+sudo service haproxy start
+else
+sudo service haproxy restart
+fi
+
+echo -e "web-01 web-02"
+echo "web-01"
+echo "web-02"
