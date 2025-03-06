@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#Updates the current state of the server
+
+
+# Exit on error
+set -e
+
+# Update package list and install Nginx
+sudo apt update -y
+sudo apt install -y nginx
+
+# Create the custom 404 error page
+echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html > /dev/null
+
+# Modify Nginx default configuration to use custom 404 page
+sudo sed -i '/server_name _;/a \ \ \ \ error_page 404 /404.html;\n \ \ \ \ location = /404.html {\n \ \ \ \ \ \ internal;\n \ \ \ \ }' /etc/nginx/sites-available/default
+
+# Restart Nginx to apply changes
+sudo systemctl restart nginx
